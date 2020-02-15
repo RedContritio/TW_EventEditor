@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace EventEditor
 {
@@ -12,7 +13,9 @@ namespace EventEditor
             NOT_EXIST,
             ILLEGAL
         };
-        static string eventFileHead = "#,0,1,2,3,4,5,6,7,8,9,10,11";
+
+
+        static readonly string eventFileHead = "#,0,1,2,3,4,5,6,7,8,9,10,11";
         public static FILE_STATE isEventFile(string fileName)
         {
             if(!File.Exists(fileName)) return FILE_STATE.NOT_EXIST;
@@ -34,10 +37,13 @@ namespace EventEditor
             Console.WriteLine(info);
         }
 
-        public static Dictionary<int, Event> loadEventFromFile(string fileName)
+        public static Dictionary<int, Event> loadEventFromFile(string filePath, out FILE_STATE state, bool isAppend = false)
         {
-            if(isEventFile(fileName) != FILE_STATE.SUCCESS) return new Dictionary<int, Event>();
-            StreamReader istream = new StreamReader(fileName);
+            state = isEventFile(filePath);
+            if (state != FILE_STATE.SUCCESS)
+                return new Dictionary<int, Event>();
+
+            StreamReader istream = new StreamReader(filePath);
             istream.ReadLine(); // jump head line
 
             Dictionary<int, Event> events = new Dictionary<int, Event>();
@@ -71,7 +77,53 @@ namespace EventEditor
             }
 
             istream.Close();
+            
+            if(isAppend)
+            {
+                History.AppendFilePaths.Add(filePath);
+            }
+            else
+            {
+                History.BaseFilePath = filePath;
+                History.AppendFilePaths.Clear();
+            }
+            History.SavePaths();
+
             return events;
         }
+
+        public static class History
+        {
+            public static string BaseFilePath = null;
+            public static List<string> AppendFilePaths = new List<string>();
+            static readonly string SaveFilePath = "History.xml";
+            public static void SavePaths()
+            {
+                List<string> Data = AppendFilePaths;
+                Data.Insert(0, BaseFilePath);
+
+                XmlSerializer writer = new XmlSerializer(typeof(List<string>));
+                FileStream file = File.Create(SaveFilePath);
+                writer.Serialize(file, Data);
+
+                file.Close();
+            }
+
+            public static void LoadPaths()
+            {
+                XmlSerializer reader = new XmlSerializer(typeof(List<string>));
+                StreamReader file = new StreamReader(SaveFilePath);
+                List<string> Data = (List<string>)reader.Deserialize(file);
+                file.Close();
+
+                if (Data.Count > 0) BaseFilePath = Data[0];
+                if (Data.Count > 1)
+                {
+                    AppendFilePaths = Data;
+                    AppendFilePaths.RemoveAt(0);
+                }
+            }
+        };
+
     }
 }

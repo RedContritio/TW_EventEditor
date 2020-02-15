@@ -23,9 +23,12 @@ namespace EventEditor
             { "help", "显示帮助"},
             { "exit", "退出程序"},
         };
+        
         static void Main(string[] args)
         {
             Dictionary<int, Event> EventDict = new Dictionary<int, Event>();
+            LoadHistory(ref EventDict);
+
             while(true)
             {
                 Prompt();
@@ -53,6 +56,7 @@ namespace EventEditor
                     }
                 }
             }
+            EventSL.History.SavePaths();
         }
 
         public static bool Command_go(ref Dictionary<int, Event> EventDict, string[] args)
@@ -126,66 +130,50 @@ namespace EventEditor
         }
         public static bool Command_load(ref Dictionary<int, Event> EventDict, string[] args)
         {
+            if(EventSL.History.BaseFilePath != null)
+            {
+                Warning("当前加载文件不为空，直接加载将会覆盖已加载的数据，确认加载吗？");
+                if(!CLIHelper.InputYorN()) return true;
+            }
+
             Prompt("输入要载入的 Event_Date 文件路径: ");
             string path = Console.ReadLine().Trim();
-            var state = EventSL.isEventFile(path);
-            switch (state)
-            {
-                case EventSL.FILE_STATE.SUCCESS:
-                    {
-                        EventDict = EventSL.loadEventFromFile(path);
-                        break;
-                    }
-                case EventSL.FILE_STATE.NOT_EXIST:
-                    {
-                        Warning("文件不存在。");
-                        break;
-                    }
-                case EventSL.FILE_STATE.ILLEGAL:
-                    {
-                        Warning("该文件不是合法的 Event_Date 文件。");
-                        break;
-                    }
-                default:
-                    {
-                        Error("Unexpected branch.");
-                        break;
-                    }
-            }
+            Dictionary<int, Event> dict = EventSL.loadEventFromFile(path, out EventSL.FILE_STATE state);
+            if(state == EventSL.FILE_STATE.SUCCESS)
+                EventDict = dict;
+            else if(state == EventSL.FILE_STATE.NOT_EXIST)
+                Warning("文件不存在。");
+            else if (state == EventSL.FILE_STATE.ILLEGAL)
+                Warning("该文件不是合法的 Event_Date 文件。");
+            else
+                Error("Unexpected branch.");
+
             return true;
         }
         public static bool Command_append(ref Dictionary<int, Event> EventDict, string[] args)
         {
-            Prompt("输入要增量加载的 Event_Date 文件路径: ");
-            Dictionary<int, Event> temp = new Dictionary<int, Event>();
-            string path = Console.ReadLine().Trim();
-            var state = EventSL.isEventFile(path);
-            switch (state)
+            if (EventSL.History.BaseFilePath == null)
             {
-                case EventSL.FILE_STATE.SUCCESS:
-                    {
-                        temp = EventSL.loadEventFromFile(path);
-                        break;
-                    }
-                case EventSL.FILE_STATE.NOT_EXIST:
-                    {
-                        Warning("文件不存在。");
-                        break;
-                    }
-                case EventSL.FILE_STATE.ILLEGAL:
-                    {
-                        Warning("该文件不是合法的 Event_Date 文件。");
-                        break;
-                    }
-                default:
-                    {
-                        Error("Unexpected branch.");
-                        break;
-                    }
+                Error("请先使用 load 加载 EventDate 本体。");
             }
+            else
+            {
+                Prompt("输入要增量加载的 Event_Date 文件路径: ");
+                string path = Console.ReadLine().Trim();
 
-            int[] cnts = EventDict.Append(temp);
-            Warning("覆盖了" + cnts[0] + "个事件，新增了" + cnts[1] + "个事件");
+                Dictionary<int, Event> temp = EventSL.loadEventFromFile(path, out EventSL.FILE_STATE state, true);
+                if (state == EventSL.FILE_STATE.SUCCESS)
+                    ;
+                else if (state == EventSL.FILE_STATE.NOT_EXIST)
+                    Warning("文件不存在。");
+                else if (state == EventSL.FILE_STATE.ILLEGAL)
+                    Warning("该文件不是合法的 Event_Date 增量文件。");
+                else
+                    Error("Unexpected branch.");
+
+                int[] cnts = EventDict.Append(temp);
+                Warning("覆盖了" + cnts[0] + "个事件，新增了" + cnts[1] + "个事件");
+            }
             return true;
         }
 
@@ -210,9 +198,57 @@ namespace EventEditor
             }
             return true;
         }
-        static void Prompt(string pmp = "") => Console.Write("> " + pmp);
-        static void Output(string info) => Console.WriteLine("[Output] " + info);
-        static void Warning(string info) => Console.WriteLine("[Warning] " + info);
-        static void Error(string info) => Console.WriteLine("[Error] " + info);
+        public static void Prompt(string pmp = "") => Console.Write("> " + pmp);
+        public static void Output(string info) => Console.WriteLine("[Output] " + info);
+        public static void Warning(string info) => Console.WriteLine("[Warning] " + info);
+        public static void Error(string info) => Console.WriteLine("[Error] " + info);
+
+        public static void LoadHistory(ref Dictionary<int, Event> EventDict)
+        {
+            EventSL.History.LoadPaths();
+            string BaseFilePath = EventSL.History.BaseFilePath;
+            EventSL.History.BaseFilePath = null;
+            string[] AppendFilePaths = EventSL.History.AppendFilePaths.ToArray();
+            EventSL.History.AppendFilePaths.Clear();
+
+            if (BaseFilePath != null)
+            {
+                Output("找到上次退出时的 EventDate 主文件记录，是否加载？");
+                Output("文件路径：" + BaseFilePath);
+                if (CLIHelper.InputYorN("是否加载（输入 y 或者 n）: "))
+                {
+                    EventDict = EventSL.loadEventFromFile(BaseFilePath, out EventSL.FILE_STATE state, false);
+                    if (state == EventSL.FILE_STATE.SUCCESS)
+                    {
+                        Output("加载主文件成功");
+                        if (AppendFilePaths.Length > 0)
+                        {
+                            Output("找到上次退出时的 EventDate 增量文件记录" + AppendFilePaths.Length + "个");
+                            foreach (string s in AppendFilePaths)
+                            {
+                                Output("文件路径：" + s);
+                                if (CLIHelper.InputYorN("是否加载（输入 y 或者 n）: "))
+                                {
+                                    Dictionary<int, Event> temp = EventSL.loadEventFromFile(s, out state, true);
+                                    if (state == EventSL.FILE_STATE.SUCCESS)
+                                    {
+                                        EventDict.Append(temp);
+                                        Output("加载成功");
+                                    }
+                                    else
+                                    {
+                                        Output("加载失败");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Output("加载主文件失败");
+                    }
+                }
+            }
+        }
     }
 }
