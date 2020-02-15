@@ -172,7 +172,15 @@ namespace EventEditor
                     Error("Unexpected branch.");
 
                 int[] cnts = EventDict.Append(temp);
-                Warning("覆盖了" + cnts[0] + "个事件，新增了" + cnts[1] + "个事件");
+                if (cnts[0] + cnts[2] == 0)
+                {
+                    Warning("共" + cnts[1] + "个相同项，无更改项，增量加载失败");
+                    EventSL.History.AppendFilePaths.RemoveAt(EventSL.History.AppendFilePaths.Count-1);
+                }
+                else
+                {
+                    Warning("覆盖了" + cnts[0] + "个事件，新增了" + cnts[2] + "个事件，有" + cnts[1] + "个相同事件");
+                }
             }
             return true;
         }

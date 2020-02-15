@@ -99,7 +99,7 @@ namespace EventEditor
             static readonly string SaveFilePath = "History.xml";
             public static void SavePaths()
             {
-                List<string> Data = AppendFilePaths;
+                List<string> Data = new List<string>(AppendFilePaths.ToArray());
                 Data.Insert(0, BaseFilePath);
 
                 XmlSerializer writer = new XmlSerializer(typeof(List<string>));

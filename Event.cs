@@ -234,18 +234,25 @@ namespace EventEditor
 
         public static int[] Append(this Dictionary<int, Event> EventDict, Dictionary<int, Event> patch)
         {
-            int[] cnts = new int[2] { 0, 0};
+            int[] cnts = new int[3] { 0, 0, 0};
             foreach(int key in patch.Keys)
             {
                 if(EventDict.ContainsKey(key))
                 {
-                    EventDict[key] = patch[key];
-                    ++cnts[0];
+                    if(!EventDict[key].ToString().Equals(patch[key].ToString()))
+                    {
+                        Console.WriteLine(EventDict[key]);
+                        Console.WriteLine(patch[key]);
+                        EventDict[key] = patch[key];
+                        ++cnts[0];
+                    }
+                    else
+                        ++cnts[1];
                 }
                 else
                 {
                     EventDict.Add(key, patch[key]);
-                    ++cnts[1];
+                    ++cnts[2];
                 }
             }
             return cnts;
