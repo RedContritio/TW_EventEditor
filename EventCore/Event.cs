@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace EventEditor
+namespace EventCore
 {
-    using SideEffect = String;
     public class Event
     {
         public int ID;
@@ -21,27 +20,17 @@ namespace EventEditor
 
         public int[] Options; // 选项列表
 
-        public SideEffect[] Requirements; // 需求
+        public string[] Requirements; // 需求
 
         public string JumpTo; // 跳转
 
-        public SideEffect[] Effects; // 事件结果
+        public string[] Effects; // 事件结果
 
         public string UnknownData1;
 
         public string UnknownData2;
 
         public int TextBox; // 启用文本框
-
-        public override string ToString()
-        {
-            return ID.ToString() + "," + Note + "," + PictureID + "," + AvatarID + "," + UIText + "," +
-                (Parameters == null ? "" : string.Join("|", Parameters)) + "," +
-                (Options == null ? "" :  string.Join("|", Options)) + "," +
-                string.Join("|", Requirements) + "," +
-                JumpTo + "," + string.Join("|", Effects) + "," + UnknownData1 + "," + UnknownData2 + "," + TextBox.ToString();
-        }
-
         public void ShowBasicInfo()
         {
             Console.Write(IDInfo);
@@ -67,7 +56,37 @@ namespace EventEditor
                 Console.WriteLine(UITextInfo);
             }
         }
+        public override string ToString()
+        {
+            return ID.ToString() + "," + Note + "," + PictureID + "," + AvatarID + "," + UIText + "," +
+                (Parameters == null ? "" : string.Join("|", Parameters.MapToString<int>())) + "," +
+                (Options == null ? "" : string.Join("|", Options.MapToString<int>())) + "," +
+                string.Join("|", Requirements) + "," +
+                JumpTo + "," + string.Join("|", Effects) + "," + UnknownData1 + "," + UnknownData2 + "," + TextBox.ToString();
+        }
 
+        public override bool Equals(object obj)
+        {
+            Event e = (Event)obj;
+            if (!(ID == e.ID)) return false;
+            if (!(Note == e.Note)) return false;
+            if (!(PictureID == e.PictureID)) return false;
+            if (!(AvatarID == e.AvatarID)) return false;
+            if (!(UIText == e.UIText)) return false;
+            if (!(ExpandGenericMethod.Compare(Parameters, e.Parameters))) return false;
+            if (!(ExpandGenericMethod.Compare(Options, e.Options))) return false;
+            if (!(ExpandGenericMethod.Compare(Requirements, e.Requirements))) return false;
+            if (!(JumpTo == e.JumpTo)) return false;
+            if (!(ExpandGenericMethod.Compare(Effects, e.Effects))) return false;
+            if (!(UnknownData1.Equals(e.UnknownData1))) return false;
+            if (!(UnknownData2.Equals(e.UnknownData2))) return false;
+            if (!(TextBox == e.TextBox)) return false;
+            return true;
+        }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
         public string MinForm => ID + "\t" +
             ((RequirementsInfo() != null) ? (RequirementsInfo() + "\t") : "") +
             (UIText.Length > 0 ? UIText : Note);
@@ -154,7 +173,7 @@ namespace EventEditor
         }
     }
 
-    public static class ExpandMethod
+    public static class EventExpandMethod
     {
         public static Event ToEvent(this string[] eventdata)
         {
@@ -166,7 +185,7 @@ namespace EventEditor
             e.AvatarID = eventdata[index++]; // 3
             e.UIText = eventdata[index++]; // 4
 
-            string[] parameterStrs = eventdata[index++].Split("|"); // 5
+            string[] parameterStrs = eventdata[index++].Split("|".ToCharArray()); // 5
             if (parameterStrs.Length == 0 || parameterStrs[0].Length == 0)
                 e.Parameters = null;
             else
@@ -178,7 +197,7 @@ namespace EventEditor
                 }
             }
 
-            string[] optionStrs = eventdata[index++].Split("|"); // 6
+            string[] optionStrs = eventdata[index++].Split("|".ToCharArray()); // 6
             if(optionStrs.Length == 0 || optionStrs[0].Length == 0)
                 e.Options = null;
             else
@@ -190,11 +209,11 @@ namespace EventEditor
                 }
             }
 
-            e.Requirements = eventdata[index++].Split("|"); // 7
+            e.Requirements = eventdata[index++].Split("|".ToCharArray()); // 7
 
             e.JumpTo = eventdata[index++]; // 8
             
-            e.Effects = eventdata[index++].Split("|"); // 9
+            e.Effects = eventdata[index++].Split("|".ToCharArray()); // 9
 
             e.UnknownData1 = eventdata[index++]; // 10
 
@@ -203,59 +222,6 @@ namespace EventEditor
             e.TextBox = int.Parse(eventdata[index++]); // 12
 
             return e;
-        }
-
-        public static void ShowEvent(this Dictionary<int, Event> EventDict, int id)
-        {
-            Event e = EventDict[id];
-            e.ShowBasicInfo();
-            if(e.Options != null && e.Options.Length > 0)
-            {
-                Console.WriteLine("可选选项：");
-                for(int i = 0; i < e.Options.Length; ++i)
-                {
-                    // 故意起名 num1
-                    int num1 = e.Options[i];
-                    if(EventDict.ContainsKey(num1))
-                    {
-                        Console.WriteLine(EventDict[num1].MinForm);
-                    }
-                    else
-                    {
-                        Console.WriteLine(num1 + "\t" + "未知事件");
-                    }
-                }
-            }
-            if(e.JumpInfo != null)
-            {
-                Console.WriteLine(e.JumpInfo + ((e.JumpToId > 0) ? "\n" + EventDict[e.JumpToId].MinForm : ""));
-            }
-        }
-
-        public static int[] Append(this Dictionary<int, Event> EventDict, Dictionary<int, Event> patch)
-        {
-            int[] cnts = new int[3] { 0, 0, 0};
-            foreach(int key in patch.Keys)
-            {
-                if(EventDict.ContainsKey(key))
-                {
-                    if(!EventDict[key].ToString().Equals(patch[key].ToString()))
-                    {
-                        Console.WriteLine(EventDict[key]);
-                        Console.WriteLine(patch[key]);
-                        EventDict[key] = patch[key];
-                        ++cnts[0];
-                    }
-                    else
-                        ++cnts[1];
-                }
-                else
-                {
-                    EventDict.Add(key, patch[key]);
-                    ++cnts[2];
-                }
-            }
-            return cnts;
         }
     }
 }

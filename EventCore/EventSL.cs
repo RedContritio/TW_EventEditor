@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace EventEditor
+namespace EventCore
 {
     public static class EventSL
     {
@@ -44,7 +44,7 @@ namespace EventEditor
                 return new Dictionary<int, Event>();
 
             StreamReader istream = new StreamReader(filePath);
-            istream.ReadLine(); // jump head line
+            istream.ReadLine(); // skip head line
 
             Dictionary<int, Event> events = new Dictionary<int, Event>();
 
@@ -56,7 +56,8 @@ namespace EventEditor
                 if(eventline != null && eventline.Length > 0)
                 {
                     eventdata = eventline.Split(',');
-                    
+                    for(int i=0; i<eventdata.Length; ++i)
+                        eventdata[i].Trim();
 
                     if(eventdata.Length >= 13)
                     {
@@ -112,6 +113,8 @@ namespace EventEditor
             public static void LoadPaths()
             {
                 XmlSerializer reader = new XmlSerializer(typeof(List<string>));
+                if(!File.Exists(SaveFilePath))
+                    return;
                 StreamReader file = new StreamReader(SaveFilePath);
                 List<string> Data = (List<string>)reader.Deserialize(file);
                 file.Close();

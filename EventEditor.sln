@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventEditor", "EventEditor.csproj", "{1851CE8D-677B-4A4A-A78B-0780EC5B9DC8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCore", "EventCore\EventCore.csproj", "{9BEC897E-F5FB-479A-9C41-AEE529DDDDAE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventEditorGUI", "EventEditorGUI\EventEditorGUI.csproj", "{D84AEF2F-4A07-4A01-A63B-50963C6F87B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventEditorCLI", "EventEditorCLI\EventEditorCLI.csproj", "{C814F82D-DA28-4012-96DB-70C667F4643D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1851CE8D-677B-4A4A-A78B-0780EC5B9DC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1851CE8D-677B-4A4A-A78B-0780EC5B9DC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1851CE8D-677B-4A4A-A78B-0780EC5B9DC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1851CE8D-677B-4A4A-A78B-0780EC5B9DC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BEC897E-F5FB-479A-9C41-AEE529DDDDAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BEC897E-F5FB-479A-9C41-AEE529DDDDAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BEC897E-F5FB-479A-9C41-AEE529DDDDAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BEC897E-F5FB-479A-9C41-AEE529DDDDAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D84AEF2F-4A07-4A01-A63B-50963C6F87B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D84AEF2F-4A07-4A01-A63B-50963C6F87B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D84AEF2F-4A07-4A01-A63B-50963C6F87B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D84AEF2F-4A07-4A01-A63B-50963C6F87B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C814F82D-DA28-4012-96DB-70C667F4643D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C814F82D-DA28-4012-96DB-70C667F4643D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C814F82D-DA28-4012-96DB-70C667F4643D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C814F82D-DA28-4012-96DB-70C667F4643D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
