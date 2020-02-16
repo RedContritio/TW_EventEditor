@@ -87,13 +87,29 @@ namespace EventCore
         {
             return base.GetHashCode();
         }
-        public string MinForm => ID + "\t" +
-            ((RequirementsInfo() != null) ? (RequirementsInfo() + "\t") : "") +
-            (UIText.Length > 0 ? UIText : Note);
-
-        public string ShortForm(int length)
+        public string MinForm(int level = 0)
         {
-            string s = MinForm;
+            string form = ID.ToString() + " ";
+            if(level == 0)
+            {
+                form += (UIText.Length > 0 ? UIText : Note);
+            }
+            else if (level == 1)
+            {
+                form += ((RequirementsInfo() != null) ? " 需 " : "") +
+                    (UIText.Length > 0 ? UIText : Note);
+            }
+            else if(level == 2)
+            {
+                form += ((RequirementsInfo() != null) ? (RequirementsInfo() + " ") : "") +
+                    (UIText.Length > 0 ? UIText : Note);
+            }
+            return form;
+        }
+
+        public string ShortForm(int length = 999, int level = 0)
+        {
+            string s = MinForm(level);
             if(length < s.Length)
                 return s.Substring(0, length);
             else

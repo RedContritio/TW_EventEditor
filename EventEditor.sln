@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventEditorGUI", "EventEdit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventEditorCLI", "EventEditorCLI\EventEditorCLI.csproj", "{C814F82D-DA28-4012-96DB-70C667F4643D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Visualizing", "Visualizing\Visualizing.csproj", "{8CC5C764-ACE2-4AF2-BCA1-F78753E709AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{C814F82D-DA28-4012-96DB-70C667F4643D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C814F82D-DA28-4012-96DB-70C667F4643D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C814F82D-DA28-4012-96DB-70C667F4643D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CC5C764-ACE2-4AF2-BCA1-F78753E709AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CC5C764-ACE2-4AF2-BCA1-F78753E709AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CC5C764-ACE2-4AF2-BCA1-F78753E709AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CC5C764-ACE2-4AF2-BCA1-F78753E709AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

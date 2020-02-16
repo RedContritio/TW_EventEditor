@@ -20,7 +20,7 @@ namespace EventCore
                     int num1 = e.Options[i];
                     if (EventDict.ContainsKey(num1))
                     {
-                        Console.WriteLine(EventDict[num1].MinForm);
+                        Console.WriteLine(EventDict[num1].ShortForm(999));
                     }
                     else
                     {
@@ -30,7 +30,7 @@ namespace EventCore
             }
             if (e.JumpInfo != null)
             {
-                Console.WriteLine(e.JumpInfo + ((e.JumpToId > 0) ? "\n" + EventDict[e.JumpToId].MinForm : ""));
+                Console.WriteLine(e.JumpInfo + ((e.JumpToId > 0) ? "\n" + EventDict[e.JumpToId].ShortForm(999) : ""));
             }
         }
         public static List<int> GetFromEventID(this Dictionary<int, Event> EventDict, int id)
