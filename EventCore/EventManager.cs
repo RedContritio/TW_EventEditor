@@ -63,6 +63,17 @@ namespace EventCore
                 dsts.Add(jumptoID);
             return dsts;
         }
+        public static int GetEventIndex(this Dictionary<int, Event> EventDict, int id)
+        {
+            int i = 0;
+            foreach (Event e in EventDict.Values)
+            {
+                if(e.ID == id)
+                    return i;
+                ++i;
+            }
+            return -1;
+        }
         public static int[] Append(this Dictionary<int, Event> EventDict, Dictionary<int, Event> patch)
         {
             int[] cnts = new int[3] { 0, 0, 0 };
@@ -86,5 +97,7 @@ namespace EventCore
             }
             return cnts;
         }
+
+        
     }
 }

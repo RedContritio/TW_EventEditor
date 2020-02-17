@@ -15,9 +15,18 @@ namespace Rodemeyer.Visualizing
         private bool matched;
         private StringBuilder sb = new StringBuilder();
 
-        public DotParser(string path)
+        readonly int CURRENT_CODE_PAGE = Encoding.Default.CodePage;
+        readonly int TARGET_CODE_PAGE = Encoding.UTF8.CodePage;
+        public DotParser(string path, bool isPath)
         {
-            r = new StreamReader(path);
+            if(isPath)
+            {
+                r = new StreamReader(path);
+            }
+            else
+            {
+                r = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(path)));
+            }
             matched = true;
         }
 
@@ -45,6 +54,18 @@ namespace Rodemeyer.Visualizing
                 ++i;
                 while (i < s.Length && s[i] != '"')
                 {
+                    if(s[i] == '\\' && i+1 < s.Length)
+                    {
+                        switch(s[i+1])
+                        {
+                            case 'n':
+                                sb.Append('\n');
+                                ++i; ++i;
+                                continue;
+                            default:
+                                break;
+                        }
+                    }
                     sb.Append(s[i]);
                     ++i;
                 }
@@ -58,6 +79,7 @@ namespace Rodemeyer.Visualizing
                     ++i;
                 }
             }
+            
             return sb.ToString();
         }
 

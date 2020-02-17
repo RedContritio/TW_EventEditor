@@ -4,7 +4,7 @@
     xmlns:local="clr-namespace:Rodemeyer.Visualizing">
   <Grid x:Name="Grid" >
     <ScrollViewer x:Name="ScrollViewer" Background="#FDFDF5"  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" >
-      <local:GraphElement x:Name="DotGraph" />
+      <local:GraphElement x:Name="DotGraph"/>
     </ScrollViewer>
    
     <TextBlock x:Name="Statistics" 
@@ -19,7 +19,8 @@
                Foreground="Gray"
                TextAlignment="Center" 
                HorizontalAlignment="Right" 
-               VerticalAlignment="Bottom" >
+               VerticalAlignment="Bottom"
+               Opacity="0">
       DotViewer © 2007 by<LineBreak/>Christian Rodemeyer
     </TextBlock>
 

@@ -56,6 +56,7 @@ namespace Rodemeyer.Visualizing
         }
         private DrawingVisual _graph = new DrawingVisual();
 
+        public string SelectNodeTag = null;
         // Capture the mouse event and hit test the coordinate point value against
         // the child visual objects.
         void MouseLeftButtonDownHandler(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -67,6 +68,7 @@ namespace Rodemeyer.Visualizing
             DrawingVisual hit = VisualTreeHelper.HitTest(this, pt).VisualHit as DrawingVisual;
             if (hit != null)
             {
+                
                 string tag = hit.ReadLocalValue(FrameworkElement.TagProperty) as string;
                 if (tag != null)
                 {
@@ -81,6 +83,7 @@ namespace Rodemeyer.Visualizing
                     glow.Freeze();
                     hit.BitmapEffect = glow;
                 }
+                SelectNodeTag = tag;
             }
         }
 
@@ -89,6 +92,7 @@ namespace Rodemeyer.Visualizing
             base.OnMouseLeave(e);
             ToolTipController.Move(null, null);
         }
+
 
         public ToolTipContentProviderDelegate ToolTipContentProvider;
 

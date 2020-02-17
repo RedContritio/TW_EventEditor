@@ -35,15 +35,15 @@ namespace Rodemeyer.Visualizing
         /// <summary>
         ///  Loads a rendered dot graph in -plain format
         /// </summary>
-        public GraphLoader(string path): this(path, "Verdana")
+        public GraphLoader(string path, bool isPath): this(path, "Verdana", isPath)
         {
             //private Typeface font = new Typeface("Segoe UI");  
         }
 
-        public GraphLoader(string path, string font_name)
+        public GraphLoader(string path, string font_name, bool isPath)
         {
             font = new Typeface(font_name);
-            parser = new DotParser(path);
+            parser = new DotParser(path, isPath);
             graph = new DrawingVisual();
             LoadGraph();
 
@@ -113,7 +113,7 @@ namespace Rodemeyer.Visualizing
             dc.DrawEllipse(fill, outline, center, rx, ry);
 
             FormattedText tx = new FormattedText(label,
-                  CultureInfo.InvariantCulture,
+                  CultureInfo.CurrentCulture,
                   FlowDirection.LeftToRight,
                   font,
                   ry * 0.7, Brushes.Black);
@@ -147,12 +147,12 @@ namespace Rodemeyer.Visualizing
             Vector v = start - points[points.Count - 2];
             v.Normalize();
             //c.BeginFigure(start + v * 0.135, true, true);
-            //double t = v.X; v.X = v.Y; v.Y = -t;  // Rotate 90°
+            //double t = v.X; v.X = v.Y; v.Y = -t;  // Rotate 90?
             //c.LineTo(start + v * 0.045, true, true);
             //c.LineTo(start + v * -0.045, true, true);
             start = start - v * 0.15;
             c.BeginFigure(start + v * 0.28, true, true);
-            double t = v.X; v.X = v.Y; v.Y = -t;  // Rotate 90°
+            double t = v.X; v.X = v.Y; v.Y = -t;  // Rotate 90?
             c.LineTo(start + v * 0.08, true, true);
             c.LineTo(start + v * -0.08, true, true);
             c.Close();

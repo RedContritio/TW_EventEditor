@@ -58,11 +58,37 @@ namespace EventCore
         }
         public override string ToString()
         {
-            return ID.ToString() + "," + Note + "," + PictureID + "," + AvatarID + "," + UIText + "," +
-                (Parameters == null ? "" : string.Join("|", Parameters.MapToString<int>())) + "," +
-                (Options == null ? "" : string.Join("|", Options.MapToString<int>())) + "," +
-                string.Join("|", Requirements) + "," +
-                JumpTo + "," + string.Join("|", Effects) + "," + UnknownData1 + "," + UnknownData2 + "," + TextBox.ToString();
+            return string.Join(",", ToStringArray());
+        }
+
+        public string[] ToStringArray()
+        {
+            return new string[13]{
+                ID.ToString(),
+                Note,
+                PictureID,
+                AvatarID,
+                UIText,
+                (Parameters == null ? "" : string.Join("|", Parameters.MapToString<int>())),
+                (Options == null ? "" : string.Join("|", Options.MapToString<int>())),
+                string.Join("|", Requirements),
+                JumpTo,
+                string.Join("|", Effects),
+                UnknownData1, UnknownData2,
+                TextBox.ToString()};
+        }
+
+        public static string[] PropertyNames => new string[13] { "ID", "Note", "PictureID", "AvatarID", "UIText", "Parameters", "Options", "Requirements", "JumpTo", "Effects", "", "", "TextBox" };
+        public static string PropertyNameTranslate(string name)
+        {
+            Dictionary<string, string> RefDict = new Dictionary<string, string>
+            {
+                {"ID", "序号" }, { "Note", "备注" }, {"PictureID", "图像序号" },
+                { "AvatarID", "头像序号" }, {"UIText", "UI文本" }, {"Parameters", "参数"},{"Options", "选项"}, {"Requirements", "需求" }, {"JumpTo", "跳转至" },
+                { "Effects", "结果" }, {"", "未知" }, { "TextBox", "有无文本框" }
+            };
+            if (RefDict.ContainsKey(name)) return RefDict[name];
+            return name;
         }
 
         public override bool Equals(object obj)
@@ -239,5 +265,7 @@ namespace EventCore
 
             return e;
         }
+
+
     }
 }

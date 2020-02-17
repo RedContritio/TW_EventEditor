@@ -24,6 +24,10 @@ namespace Rodemeyer.Visualizing
     {
         public static readonly RoutedEvent ShowNodeTipEvent;
 
+        public string SelectNodeTag => DotGraph.SelectNodeTag;
+
+        
+
         static DotViewer()
         {
             ShowNodeTipEvent = EventManager.RegisterRoutedEvent("ShowNodeTip", RoutingStrategy.Bubble, typeof(NodeTipEventHandler), typeof(DotViewer));
@@ -45,9 +49,9 @@ namespace Rodemeyer.Visualizing
         /// <summary>
         ///  Loads a rendered dot graph in -plain format
         /// </summary>
-        public void LoadPlain(string path)
+        public void LoadPlain(string path, bool isPath = true)
         {
-            GraphLoader g = new GraphLoader(path);
+            GraphLoader g = new GraphLoader(path, "ËÎÌו", isPath);
             DotGraph.Graph = g.Graph;
             DotGraph.ZoomTo(RenderSize);
             UpdateLayout();
@@ -141,6 +145,25 @@ namespace Rodemeyer.Visualizing
 
         #region Zooming
 
+        public void ZoomTo(double zoom)
+        {
+            if (zoom < 0.07) zoom = 0.07;
+            else if (zoom > 7) zoom = 7;
+            DotGraph.Zoom = zoom;
+
+            double centerX = ScrollViewer.ViewportWidth / 2;
+            double centerY = ScrollViewer.ViewportHeight / 2;
+
+            double offsetX = (ScrollViewer.HorizontalOffset + centerX) / DotGraph.Zoom;
+            double offsetY = (ScrollViewer.VerticalOffset + centerY) / DotGraph.Zoom;
+
+            UpdateLayout();
+
+            ScrollViewer.ScrollToHorizontalOffset(offsetX * zoom - centerX);
+            ScrollViewer.ScrollToVerticalOffset(offsetY * zoom - centerY);
+
+            UpdateTextBlockPosition();
+        }
         protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
         {
             e.Handled = true;

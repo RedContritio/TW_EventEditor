@@ -1,0 +1,63 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EventEditorGUI"
+        xmlns:Visualizing="clr-namespace:Rodemeyer.Visualizing;assembly=Rodemeyer.Visualizing" x:Class="EventEditorGUI.MainWindow"
+        mc:Ignorable="d"
+        Title="太吾事件编辑器" Height="450" Width="800" Loaded="Window_Loaded" Closing="Window_Closing" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <DockPanel>
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="文件">
+                    <!--菜单项为MenuItem，文字使用属性 Header-->
+                    <MenuItem x:Name="menuLoad" Header="载入主文件" Click="MenuLoad_Click"/>
+                    <MenuItem x:Name="menuAppend" Header="载入增量文件" IsEnabled="False" Click="MenuAppend_Click"/>
+                    <MenuItem x:Name="menuReloadAll" Header="重新载入"  IsEnabled="False" Click="MenuReloadAll_Click"/>
+                    <MenuItem x:Name="menuExit"  Header="退出" Click="MenuExit_Click"/>
+                </MenuItem>
+                <MenuItem x:Name="MenuAbout" Header="关于" Click="MenuAbout_Click"/>
+            </Menu>
+            <StatusBar DockPanel.Dock="Bottom">
+                <TextBlock x:Name="bottomStatus" Text="状态栏"/>
+            </StatusBar>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="9*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="10*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="30*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" x:Name="infoText" Text="信息栏" TextAlignment="Center"/>
+                <TextBox Grid.Column="1" Grid.Row="3" x:Name="textBox1" KeyDown="textBox1_KeyDown"/>
+                <Button Grid.Column="2" Grid.Row="3" x:Name="searchButton" Click="SearchButton_Click" Content="搜索"/>
+                <ListBox Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="2" x:Name="eventList" SelectionChanged="EventList_SelectionChanged"/>
+
+                <TabControl Grid.Row="0" Grid.Column="4" Grid.RowSpan="6" SelectionChanged="TabControl_SelectionChanged">
+                    <TabItem x:Name="propertyPage" Header="属性">
+                        <Grid x:Name="propertyGrid">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </TabItem>
+                    <TabItem x:Name="relationPage" Header="关系">
+                        <Visualizing:DotViewer Name="dotViewer" ShowNodeTip="dotViewer_ShowNodeTip" MouseLeftButtonUp="dotViewer_MouseLeftButtonUp"/>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+        </DockPanel>
+    </Grid>
+</Window>
