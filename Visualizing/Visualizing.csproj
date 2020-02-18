@@ -122,4 +122,8 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy $(ProjectDir)$(OutDir)*.dll $(SolutionDir)bin\publish\
+copy $(ProjectDir)$(OutDir)*.pdb $(SolutionDir)bin\publish\</PostBuildEvent>
+  </PropertyGroup>
 </Project>

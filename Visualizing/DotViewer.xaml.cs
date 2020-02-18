@@ -62,6 +62,7 @@ namespace Rodemeyer.Visualizing
             UpdateTextBlockPosition();
         }
 
+
         /// <summary>
         /// Prints a graph over several pages, if necessary
         /// </summary>
@@ -161,6 +162,43 @@ namespace Rodemeyer.Visualizing
 
             ScrollViewer.ScrollToHorizontalOffset(offsetX * zoom - centerX);
             ScrollViewer.ScrollToVerticalOffset(offsetY * zoom - centerY);
+
+            UpdateTextBlockPosition();
+        }
+
+        [Obsolete]
+        public void ZoomTo(string tag)
+        {
+            DotGraph.SelectNodeTag = tag;
+
+            DrawingVisual node = null;
+            foreach (DrawingVisual v in DotGraph.Graph.Children)
+            {
+                if ((string)v.ReadLocalValue(FrameworkElement.TagProperty) == tag)
+                {
+                    node = v;
+                    break;
+                }
+            }
+
+            double centerX = ScrollViewer.ViewportWidth / 2;
+            double centerY = ScrollViewer.ViewportHeight / 2;
+
+            if(node != null)
+            {
+                Rect area = node.ContentBounds;
+                centerX = area.X + area.Width / 2;
+                centerY = area.Y + area.Width / 2;
+            }
+
+
+            double offsetX = (ScrollViewer.HorizontalOffset + centerX) / DotGraph.Zoom;
+            double offsetY = (ScrollViewer.VerticalOffset + centerY) / DotGraph.Zoom;
+
+            UpdateLayout();
+
+            ScrollViewer.ScrollToHorizontalOffset(offsetX - centerX);
+            ScrollViewer.ScrollToVerticalOffset(offsetY - centerY);
 
             UpdateTextBlockPosition();
         }

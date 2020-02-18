@@ -24,6 +24,8 @@ namespace EventEditorGUI
         public static MainWindow instance = null;
 
         public static Dictionary<int, Event> EventDict = new Dictionary<int, Event>();
+
+        public static List<int> EventList = new List<int>();
         public MainWindow()
         {
             InitializeComponent();
@@ -157,7 +159,66 @@ namespace EventEditorGUI
             }
         }
 
-        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+        }
+
+        private void EventList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(e.AddedItems.Count > 0)
+            {
+                string idstr = e.AddedItems[0].ToString().Split(new char[] { ' ' })[0];
+                if(int.TryParse(idstr, out int id))
+                {
+                    Status(string.Format("选择了事件 {0}", id));
+                    GUIHelper.UpdateEventToGrid(propertyGrid, EventDict[id]);
+                    GUIHelper.UpdateEventToGraph(dotViewer, EventDict, EventDict[id]);
+                }
+                else
+                {
+                    Error(e.AddedItems[0].ToString() + "无法解析得到ID");
+                }
+            }
+            else
+            {
+                GUIHelper.UpdateEventToGrid(propertyGrid);
+            }
+        }
+
+        public void UpdateRelationPage(Event e)
+        {
+        }
+
+        private void dotViewer_ShowNodeTip(object sender, Rodemeyer.Visualizing.NodeTipEventArgs e)
+        {
+            e.Handled = true;
+            string key = e.Tag as string;
+            if(int.TryParse(key, out int id))
+            {
+                e.Content = EventDict[id].ShortForm(999, 1);
+            }
+        }
+
+        [Obsolete]
+        private void dotViewer_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if(dotViewer.SelectNodeTag != null)
+            {
+                if (int.TryParse(dotViewer.SelectNodeTag, out int id))
+                {
+                    GUIHelper.UpdateEventToGraph(dotViewer, EventDict, EventDict[id]);
+                    dotViewer.ZoomTo(dotViewer.SelectNodeTag);
+                    GUIHelper.TryScrollToID(id);
+                }
+            }
+        }
+
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            dotViewer.ZoomTo(1);
+        }
+
+        private void textBox1_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (textBox1.Text.Length > 0)
             {
@@ -174,73 +235,14 @@ namespace EventEditorGUI
                         idxs.Add(k);
                     }
                 }
-                GUIHelper.UpdateEventList(idxs);
+                EventList = idxs;
+                GUIHelper.OnEventListChanged();
             }
             else
             {
-                GUIHelper.UpdateEventList(EventDict.Keys);
+                EventList = EventDict.Keys.ToList();
+                GUIHelper.OnEventListChanged();
             }
-        }
-
-        private void textBox1_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyStates == Keyboard.GetKeyStates(Key.Enter)) // Enter
-            {
-                searchButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); ;
-            }
-        }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-        }
-
-        private void EventList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            string idstr = e.AddedItems[0].ToString().Split(new char[] { ' ' })[0];
-            if(int.TryParse(idstr, out int id))
-            {
-                GUIHelper.UpdateEventToGrid(propertyGrid, EventDict[id]);
-                GUIHelper.UpdateEventToGraph(dotViewer, EventDict, EventDict[id]);
-            }
-            else
-            {
-                Error(e.AddedItems[0].ToString() + "无法解析得到ID");
-            }
-        }
-
-        public void UpdateRelationPage(Event e)
-        {
-        }
-
-        private void dotViewer_ShowNodeTip(object sender, Rodemeyer.Visualizing.NodeTipEventArgs e)
-        {
-            e.Handled = true;
-            string key = e.Tag as string;
-            if(int.TryParse(key, out int id))
-            {
-                e.Content = EventDict[id].ShortForm(50, 1);
-            }
-        }
-
-        private void dotViewer_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if(dotViewer.SelectNodeTag != null)
-            {
-                if(int.TryParse(dotViewer.SelectNodeTag, out int id))
-                {
-                    int i = EventDict.GetEventIndex(id);
-                    if(i >= 0)
-                    {
-                        eventList.SelectedIndex = i;
-                    }
-                    eventList.ScrollIntoView(eventList.Items[i]);
-                }
-            }
-        }
-
-        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            dotViewer.ZoomTo(1);
         }
     }
 }

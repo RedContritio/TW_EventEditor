@@ -97,7 +97,15 @@ namespace EventCore
         {
             public static string BaseFilePath = null;
             public static List<string> AppendFilePaths = new List<string>();
-            static readonly string SaveFilePath = "History.xml";
+            public static string SaveFileFolder => Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\TWEventEditor";
+            public static string SaveFilePath
+            {
+                get
+                {
+                    if(!Directory.Exists(SaveFileFolder))
+                        Directory.CreateDirectory(SaveFileFolder);
+                    return  SaveFileFolder + @"\History.xml"; }
+            }
             public static void SavePaths()
             {
                 List<string> Data = new List<string>(AppendFilePaths.ToArray());

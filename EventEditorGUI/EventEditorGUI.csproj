@@ -24,7 +24,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>2</ApplicationRevision>
+    <ApplicationRevision>3</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -179,4 +179,12 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy $(ProjectDir)$(OutDir)*.exe $(SolutionDir)bin\publish\
+copy $(ProjectDir)$(OutDir)*.dll $(SolutionDir)bin\publish\
+copy $(ProjectDir)$(OutDir)*.pdb $(SolutionDir)bin\publish\
+cd $(SolutionDir)bin\publish
+rar a $(SolutionName).rar *.exe *.dll *.pdb 
+cd $(ProjectDir)$(OutDir)</PostBuildEvent>
+  </PropertyGroup>
 </Project>

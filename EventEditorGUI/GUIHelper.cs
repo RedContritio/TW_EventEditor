@@ -7,11 +7,13 @@ using WINGRAPHVIZLib;
 
 using EventCore;
 using Rodemeyer.Visualizing;
+using System.Windows;
 
 namespace EventEditorGUI
 {
     public static class GUIHelper
     {
+
         public static void OnBaseFileLoaded()
         {
             MainWindow.instance.menuAppend.IsEnabled = true;
@@ -19,16 +21,30 @@ namespace EventEditorGUI
             MainWindow.instance.infoText.Text = string.Format("已加载记录 {0} 项", MainWindow.EventDict.Count);
             EventManagerHelper.ClearDictTextForm();
             MainWindow.EventDict.UpdateDictTextForm();
-            UpdateEventList(MainWindow.EventDict.Keys);
+            MainWindow.EventList = MainWindow.EventDict.Keys.ToList();
+            OnEventListChanged();
             EventSL.History.SavePaths();
         }
         public static void OnExtraFileAppended(Dictionary<int, Event> ex)
         {
             MainWindow.instance.infoText.Text = string.Format("已加载记录 {0} 项", MainWindow.EventDict.Count);
             ex.UpdateDictTextForm();
+            MainWindow.EventList = MainWindow.EventDict.Keys.ToList();
+            OnEventListChanged();
             EventSL.History.SavePaths();
         }
-
+        public static void OnEventListChanged()
+        {
+            UpdateEventList(MainWindow.EventList);
+        }
+        public static void TryScrollToID(int id)
+        {
+            if (MainWindow.EventList.Contains(id))
+            {
+                int i = MainWindow.EventList.IndexOf(id);
+                MainWindow.instance.eventList.SelectedIndex = i; MainWindow.instance.eventList.ScrollIntoView(MainWindow.instance.eventList.Items[i]);
+            }
+        }
         public static void Log(string str)
         {
             MainWindow.Status(str);
@@ -44,23 +60,23 @@ namespace EventEditorGUI
             }
         }
 
-        public static void UpdateEventToGrid(Grid grid, Event e)
+        public static void UpdateEventToGrid(Grid grid, Event e = null)
         {
-            string[] names = Event.PropertyNames;
-            string[] values = e.ToStringArray();
-            for (int i = 0; i < names.Length; ++i)
+            string[] values = e == null ? null : e.ToStringArray();
+            for (int i = 0; i < Event.PropertyNames.Length; ++i)
             {
-                ScrollViewer v = grid.Children[i + names.Length] as ScrollViewer;
+                ScrollViewer v = grid.Children[i + Event.PropertyNames.Length] as ScrollViewer;
                 TextBlock vtxt = v.Content as TextBlock;
-                vtxt.Text = values[i];
+                vtxt.Text = values == null ? "" : values[i];
             }
         }
 
         public static void UpdateEventToGraph(DotViewer dotViewer, Dictionary<int, Event> EventDict, Event e)
         {
             string plain = EventDict.GetRelationGraph(e);
-            MainWindow.instance.dotViewer.LoadPlain(plain, false);
+            dotViewer.LoadPlain(plain, false);
         }
+
     }
 
     public static class EventManagerHelper
@@ -94,11 +110,12 @@ namespace EventEditorGUI
 
         public static string GetRelationGraph(this Dictionary<int, Event> dict, Event e)
         {
+            const int MaxNodeCount = 150;
             string src = "strict digraph MyGraph { ranksep = 1; node[fontname = \"Verdana\"]";
-
             List<int> idInGraph = new List<int>();
             List<List<int>> Hierarchy = new List<List<int>>();
             Hierarchy.Add(new List<int>(){ e.ID });
+            idInGraph.Add(e.ID);
 
             List<int> Temp = new List<int>();
             bool meaningful = true;
@@ -114,13 +131,24 @@ namespace EventEditorGUI
                         foreach(int from in froms)
                         {
                             src += string.Format("\"{0}\"->\"{1}\";", from, id);
+                            if(!idInGraph.Contains(from))
+                            {
+                                Temp.Add(from);
+                                idInGraph.Add(from);
+                                meaningful = true;
+                            }
+                            if (idInGraph.Count >= MaxNodeCount)
+                                break;
                         }
-                        Temp.AddRange(froms);
-                        meaningful = true;
+                        if (idInGraph.Count >= MaxNodeCount)
+                            break;
                     }
                 }
-                if(Temp.Count > 0)
+                if (Temp.Count > 0)
                     Hierarchy.Insert(0, Temp.ToArray().ToList());
+                if (idInGraph.Count >= MaxNodeCount)
+                    break;
+
                 Temp.Clear();
                 foreach (int id in Hierarchy[Hierarchy.Count-1])
                 {
@@ -130,17 +158,27 @@ namespace EventEditorGUI
                         foreach (int to in tos)
                         {
                             src += string.Format("\"{0}\"->\"{1}\";", id, to);
+                            if (!idInGraph.Contains(to))
+                            {
+                                Temp.Add(to);
+                                idInGraph.Add(to);
+                                meaningful = true;
+                            }
+                            if (idInGraph.Count >= MaxNodeCount)
+                                break;
                         }
-                        Temp.AddRange(tos);
-                        meaningful = true;
+                        if (idInGraph.Count >= MaxNodeCount)
+                            break;
                     }
                 }
                 if (Temp.Count > 0)
                     Hierarchy.Add(Temp.ToArray().ToList());
-                Temp.Clear();
+                if (idInGraph.Count >= MaxNodeCount)
+                    break;
             }
 
-            for(int i = 0; i < Hierarchy.Count; ++i)
+
+            for (int i = 0; i < Hierarchy.Count; ++i)
             {
                 src += string.Format("subgraph cluster_{0}", i) + "{";
                 src += string.Format("label=\"Layer {0}\";", i);
@@ -158,9 +196,9 @@ namespace EventEditorGUI
             }
 
             src += "}";
-            
+
             string plain = GraphvizHelper.Dot2Plain(src);
-            
+
             return plain;
         }
     }

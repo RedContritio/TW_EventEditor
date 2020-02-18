@@ -56,9 +56,48 @@ namespace Rodemeyer.Visualizing
         }
         private DrawingVisual _graph = new DrawingVisual();
 
-        public string SelectNodeTag = null;
+        public string _SelectNodeTag = null;
+
+        [Obsolete]
+        public string SelectNodeTag
+        {
+            get { return _SelectNodeTag; }
+            set {
+                DrawingVisual t = null;
+                foreach (DrawingVisual v in _graph.Children)
+                {
+                    if((string) v.ReadLocalValue(FrameworkElement.TagProperty) == value)
+                    {
+                        t = v;
+                        break;
+                    }
+                }
+                if(t != null)
+                {
+                    SelectNode(t);
+                    _SelectNodeTag = value;
+                }
+            }
+        }
+
+        [Obsolete]
+        void SelectNode(DrawingVisual t)
+        {
+            foreach (DrawingVisual v in _graph.Children)
+            {
+                v.BitmapEffect = null;
+            }
+            OuterGlowBitmapEffect glow = new OuterGlowBitmapEffect();
+            glow.GlowColor = Colors.Blue;
+            glow.GlowSize = 1;
+            glow.Opacity = 0.8;
+            glow.Freeze();
+            t.BitmapEffect = glow;
+        }
+
         // Capture the mouse event and hit test the coordinate point value against
         // the child visual objects.
+        [Obsolete]
         void MouseLeftButtonDownHandler(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             ToolTipController.Hide();
@@ -70,19 +109,7 @@ namespace Rodemeyer.Visualizing
             {
                 
                 string tag = hit.ReadLocalValue(FrameworkElement.TagProperty) as string;
-                if (tag != null)
-                {
-                    foreach (DrawingVisual v in _graph.Children)
-                    {
-                        v.BitmapEffect = null;
-                    }
-                    OuterGlowBitmapEffect glow = new OuterGlowBitmapEffect();
-                    glow.GlowColor = Colors.Blue;
-                    glow.GlowSize = 1;
-                    glow.Opacity = 0.8;
-                    glow.Freeze();
-                    hit.BitmapEffect = glow;
-                }
+
                 SelectNodeTag = tag;
             }
         }
